@@ -12,7 +12,6 @@ try:
 except ImportError:
     visibility = False
 
-from easygui import msgbox
 from threading import Thread, Event
 from .custom_logging import setup_logging
 from .common_gui import setup_environment
@@ -60,7 +59,7 @@ class TensorboardManager:
             self.log.error(
                 "Error: logging folder does not exist or does not contain logs."
             )
-            msgbox(msg="Error: logging folder does not exist or does not contain logs.")
+            gr.Warning("Error: logging folder does not exist or does not contain logs.")
             return self.get_button_states(started=False)
 
         run_cmd = [

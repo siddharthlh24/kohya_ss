@@ -1,7 +1,6 @@
 import os
 import re
 import gradio as gr
-from easygui import msgbox, boolbox
 from .common_gui import get_folder_path, scriptdir, list_dirs, create_refresh_button
 
 from .custom_logging import setup_logging
@@ -13,20 +12,20 @@ log = setup_logging()
 import os
 import re
 import logging as log
-from easygui import msgbox
+# from easygui import msgbox # easygui msgbox will be handled in step 2
 
 def dataset_balancing(concept_repeats, folder, insecure):
 
     if not concept_repeats > 0:
         # Display an error message if the total number of repeats is not a valid integer
-        msgbox("Please enter a valid integer for the total number of repeats.")
+        gr.Error("Please enter a valid integer for the total number of repeats.")
         return
 
     concept_repeats = int(concept_repeats)
 
     # Check if folder exist
     if folder == "" or not os.path.isdir(folder):
-        msgbox("Please enter a valid folder for balancing.")
+        gr.Error("Please enter a valid folder for balancing.")
         return
 
     pattern = re.compile(r"^\d+_.+$")
@@ -93,19 +92,23 @@ def dataset_balancing(concept_repeats, folder, insecure):
                 f"Skipping folder {subdir} because it does not match kohya_ss expected syntax..."
             )
 
-    msgbox("Dataset balancing completed...")
+    gr.Info("Dataset balancing completed...")
 
 
 
-def warning(insecure):
-    if insecure:
-        if boolbox(
-            f"WARNING!!! You have asked to rename non kohya_ss <num>_<text> folders...\n\nAre you sure you want to do that?",
-            choices=("Yes, I like danger", "No, get me out of here"),
-        ):
-            return True
-        else:
-            return False
+def warning(insecure_checked, headless=False): # Renamed insecure to insecure_checked for clarity
+    if insecure_checked:
+        message = "DANGER!!! Insecure folder renaming is active. Folders not matching the standard '<number>_<text>' pattern may be renamed."
+        # Log the warning regardless of headless state, as it's a significant user choice
+        log.warning(message)
+        if not headless:
+            gr.Warning(message)
+        # Return the state of the checkbox. If it was checked, it remains checked.
+        # The calling UI's .change(outputs=checkbox) will ensure this.
+        return insecure_checked
+    # If the checkbox was unchecked, or if it was checked and then logic above ran,
+    # this ensures the checkbox state is correctly returned to Gradio.
+    return insecure_checked
 
 
 def gradio_dataset_balancing_tab(headless=False):
@@ -168,7 +171,7 @@ def gradio_dataset_balancing_tab(headless=False):
                 value=False,
                 label="DANGER!!! -- Insecure folder renaming -- DANGER!!!",
             )
-            insecure.change(warning, inputs=insecure, outputs=insecure)
+            insecure.change(lambda val: warning(val, headless=headless), inputs=insecure, outputs=insecure)
         balance_button = gr.Button("Balance dataset")
         balance_button.click(
             dataset_balancing,
