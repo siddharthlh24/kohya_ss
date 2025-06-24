@@ -20,34 +20,36 @@ Support for Linux and macOS is also available. While Linux support is actively m
 
 ## Table of Contents
 
-- [Installation Options](#installation-options)
-  - [Local Installation Overview](#local-installation-overview)
-    - [`uv` vs `pip` – What's the Difference?](#uv-vs-pip--whats-the-difference)
-  - [Cloud Installation Overview](#cloud-installation-overview)
-    - [Colab](#-colab)
-    - [Runpod, Novita, Docker](#runpod-novita-docker)
-- [Custom Path Defaults](#custom-path-defaults)
-    - [LoRA](#lora)
+- [Kohya's GUI](#kohyas-gui)
+  - [Table of Contents](#table-of-contents)
+  - [Installation Options](#installation-options)
+    - [Local Installation Overview](#local-installation-overview)
+      - [`uv` vs `pip` – What's the Difference?](#uv-vs-pip--whats-the-difference)
+    - [Cloud Installation Overview](#cloud-installation-overview)
+      - [🦒 Colab](#-colab)
+      - [Runpod, Novita, Docker](#runpod-novita-docker)
+  - [Custom Path Defaults with `config.toml`](#custom-path-defaults-with-configtoml)
+  - [LoRA](#lora)
   - [Sample image generation during training](#sample-image-generation-during-training)
   - [Troubleshooting](#troubleshooting)
-  - [Page File Limit](#page-file-limit)
-  - [No module called tkinter](#no-module-called-tkinter)
-  - [LORA Training on TESLA V100 - GPU Utilization Issue](#lora-training-on-tesla-v100---gpu-utilization-issue)
-- [SDXL training](#sdxl-training)
-- [Masked loss](#masked-loss)
-- [Guides](#guides)
-  - [Using Accelerate Lora Tab to Select GPU ID](#using-accelerate-lora-tab-to-select-gpu-id)
-    - [Starting Accelerate in GUI](#starting-accelerate-in-gui)
-    - [Running Multiple Instances (linux)](#running-multiple-instances-linux)
-    - [Monitoring Processes](#monitoring-processes)
-- [Interesting Forks](#interesting-forks)
-- [Contributing](#contributing)
-- [License](#license)
-- [Change History](#change-history)
-  - [v25.0.3](#v2503)
-  - [v25.0.2](#v2502)
-  - [v25.0.1](#v2501)
-  - [v25.0.0](#v2500)
+    - [Page File Limit](#page-file-limit)
+    - [No module called tkinter](#no-module-called-tkinter)
+    - [LORA Training on TESLA V100 - GPU Utilization Issue](#lora-training-on-tesla-v100---gpu-utilization-issue)
+  - [SDXL training](#sdxl-training)
+  - [Masked loss](#masked-loss)
+  - [Guides](#guides)
+    - [Using Accelerate Lora Tab to Select GPU ID](#using-accelerate-lora-tab-to-select-gpu-id)
+      - [Starting Accelerate in GUI](#starting-accelerate-in-gui)
+      - [Running Multiple Instances (linux)](#running-multiple-instances-linux)
+      - [Monitoring Processes](#monitoring-processes)
+  - [Interesting Forks](#interesting-forks)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Change History](#change-history)
+    - [v25.0.3](#v2503)
+    - [v25.0.2](#v2502)
+    - [v25.0.1](#v2501)
+    - [v25.0.0](#v2500)
 
 
 ## Installation Options
@@ -101,9 +103,9 @@ I would like to express my gratitude to camenduru for their valuable contributio
 
 These options are for users running training on hosted GPU infrastructure or containers.
 
-- **[Runpod setup](docs/runpod_setup.md)** – Ready-made GPU background training via templates.
-- **[Novita setup](docs/novita_setup.md)** – Similar to Runpod, but integrated into the Novita UI.
-- **[Docker setup](docs/docker.md)** – For developers/sysadmins using containerized environments.
+- **[Runpod setup](docs/installation_runpod.md)** – Ready-made GPU background training via templates.
+- **[Novita setup](docs/installation_novita.md)** – Similar to Runpod, but integrated into the Novita UI.
+- **[Docker setup](docs/installation_docker.md)** – For developers/sysadmins using containerized environments.
 
 
 ## Custom Path Defaults with `config.toml`
