@@ -69,7 +69,7 @@ class KohyaSSGUIConfig:
             log.debug(k)
             # If the key is not found in the current data, return the default value
             if k not in data:
-                log.info(
+                log.debug(
                     f"Key '{key}' not found in configuration. Returning default value."
                 )
                 return default

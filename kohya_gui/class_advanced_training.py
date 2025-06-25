@@ -599,9 +599,9 @@ class AdvancedTraining:
             )
             self.log_tracker_config = gr.Dropdown(
                 label="Log tracker config",
-                choices=[self.config.get("log_tracker_config_dir", "")]
+                choices=[self.config.get("advanced.log_tracker_config_dir", "")]
                 + list_log_tracker_config_files(self.current_log_tracker_config_dir),
-                value=self.config.get("log_tracker_config_dir", ""),
+                value=self.config.get("advanced.log_tracker_config_dir", ""),
                 info="Path to tracker config file to use for logging",
                 interactive=True,
                 allow_custom_value=True,
@@ -610,7 +610,7 @@ class AdvancedTraining:
                 self.log_tracker_config,
                 lambda: None,
                 lambda: {
-                    "choices": [self.config.get("log_tracker_config_dir", "")]
+                    "choices": [self.config.get("advanced.log_tracker_config_dir", "")]
                     + list_log_tracker_config_files(self.current_log_tracker_config_dir)
                 },
                 "open_folder_small",
@@ -625,7 +625,7 @@ class AdvancedTraining:
             )
             self.log_tracker_config.change(
                 fn=lambda path: gr.Dropdown(
-                    choices=[self.config.get("log_tracker_config_dir", "")]
+                    choices=[self.config.get("advanced.log_tracker_config_dir", "")]
                     + list_log_tracker_config_files(path)
                 ),
                 inputs=self.log_tracker_config,
