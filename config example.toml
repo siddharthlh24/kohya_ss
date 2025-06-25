@@ -189,7 +189,7 @@ wandb_api_key          = ""         # Weights & Biases API key.
 wandb_run_name         = ""         # Weights & Biases run name.
 log_config             = false      # Log training parameters to W&B. (Default: false)
 log_tracker_name       = ""         # Name for the log tracker.
-log_tracker_config_dir = "./logs"    # Directory for log tracker configuration. Initial value for dropdown.
+log_tracker_config_dir = "./logs"   # Directory for log tracker configuration. Initial value for dropdown.
 
 [sdxl]
 # SDXL specific parameters.
@@ -400,29 +400,29 @@ guidance_scale        = 3.5            # Guidance scale for inference. (Default:
 t5xxl_max_token_length = 512  # Maximum token length for T5XXL. (Default: 512)
 
 # Performance and memory options for Flux.1.
-enable_all_linear     = false  # Enable all linear layers. (Default: false)
-cache_text_encoder_outputs = false  # Cache Flux.1 text encoder outputs in VRAM. (Default: false)
+enable_all_linear     = false              # Enable all linear layers. (Default: false)
+cache_text_encoder_outputs = false         # Cache Flux.1 text encoder outputs in VRAM. (Default: false)
 cache_text_encoder_outputs_to_disk = false # Cache Flux.1 text encoder outputs to disk. (Default: false)
-mem_eff_save          = false  # Enable memory-efficient saving. (Default: false)
-single_blocks_to_swap = 0      # Number of single blocks to swap. (Default: 0)
-double_blocks_to_swap = 0      # Number of double blocks to swap. (Default: 0)
-blockwise_fused_optimizers = false # Enable blockwise fused optimizers. (Default: false)
-flux_fused_backward_pass = false # Enable fused backward pass specific to Flux.1. (Default: false)
+mem_eff_save          = false              # Enable memory-efficient saving. (Default: false)
+single_blocks_to_swap = 0                  # Number of single blocks to swap. (Default: 0)
+double_blocks_to_swap = 0                  # Number of double blocks to swap. (Default: 0)
+blockwise_fused_optimizers = false         # Enable blockwise fused optimizers. (Default: false)
+flux_fused_backward_pass = false           # Enable fused backward pass specific to Flux.1. (Default: false)
 
 # Block indices for training.
 train_double_block_indices = "all"  # Indices of double blocks to train. (Default: "all")
 train_single_block_indices = "all"  # Indices of single blocks to train. (Default: "all")
 
 # Dimensionality settings for Flux.1 components.
-img_attn_dim = ""  # Image attention dimension.
-img_mlp_dim  = ""  # Image MLP dimension.
-img_mod_dim  = ""  # Image modulator dimension.
-single_dim   = ""  # Single dimension.
-txt_attn_dim = ""  # Text attention dimension.
-txt_mlp_dim  = ""  # Text MLP dimension.
-txt_mod_dim  = ""  # Text modulator dimension.
+img_attn_dim = ""   # Image attention dimension.
+img_mlp_dim  = ""   # Image MLP dimension.
+img_mod_dim  = ""   # Image modulator dimension.
+single_dim   = ""   # Single dimension.
+txt_attn_dim = ""   # Text attention dimension.
+txt_mlp_dim  = ""   # Text MLP dimension.
+txt_mod_dim  = ""   # Text modulator dimension.
 single_mod_dim = "" # Single modulator dimension.
-in_dims      = ""  # Input dimensions.
+in_dims      = ""   # Input dimensions.
 
 # --- Standalone Tool Default Settings ---
 
@@ -444,12 +444,12 @@ append_tags       = false                        # Append new tags instead of ov
 batch_size        = 8                            # Batch size for processing images. (Default: 8)
 caption_extension = ".txt"                       # Extension for caption files (e.g., ".caption", ".txt"). (Default: ".txt")
 caption_separator = ", "                         # Separator used between tags in the caption file. (Default: ", ")
-character_tag_expand = false                   # Expand character tags like `name_(series)` to `name, series`. (Default: false)
+character_tag_expand = false                     # Expand character tags like `name_(series)` to `name, series`. (Default: false)
 character_threshold  = 0.35                      # Confidence threshold for character tags. (Default: 0.35)
 debug             = false                        # Enable debug mode for verbose logging. (Default: false)
 force_download    = false                        # Force re-download of the tagging model. (Default: false)
 frequency_tags    = false                        # Include frequency of tags in output. (Default: false)
-general_threshold = 0.35                       # Confidence threshold for general tags. (Default: 0.35)
+general_threshold = 0.35                         # Confidence threshold for general tags. (Default: 0.35)
 max_data_loader_n_workers = 2                    # Max workers for DataLoader. (Default: 2)
 onnx              = true                         # Use ONNX runtime for inference (if available). (Default: true)
 recursive         = false                        # Process images in subdirectories recursively. (Default: false)
