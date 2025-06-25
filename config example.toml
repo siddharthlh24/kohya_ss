@@ -3,6 +3,7 @@
 
 [settings]
 use_shell = false # Use shell during process run of sd-scripts oython code. Most secure is false but some systems may require it to be true to properly run sd-scripts.
+expand_all_accordions = true # Expand all accordions in the UI by default
 
 # Default folders location
 [model]
