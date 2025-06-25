@@ -4,7 +4,6 @@
 
 [settings]
 # General UI behavior settings.
-use_shell             = false  # Use shell for running sd-scripts. Set to true only if necessary for your system. (Default: false)
 expand_all_accordions = false  # Expand all UI accordions by default. (Default: false)
 
 [model]

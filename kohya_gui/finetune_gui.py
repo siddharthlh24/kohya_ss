@@ -50,7 +50,6 @@ executor = None
 
 # Setup huggingface
 huggingface = None
-use_shell = False
 train_state_value = time.time()
 
 folder_symbol = "\U0001f4c2"  # 📂
@@ -1201,14 +1200,10 @@ def train_model(
 def finetune_tab(
     headless=False,
     config: KohyaSSGUIConfig = {},
-    use_shell_flag: bool = False,
 ):
     dummy_db_true = gr.Checkbox(value=True, visible=False)
     dummy_db_false = gr.Checkbox(value=False, visible=False)
     dummy_headless = gr.Checkbox(value=headless, visible=False)
-
-    global use_shell
-    use_shell = use_shell_flag
 
     with gr.Tab("Training"), gr.Column(variant="compact"):
         gr.Markdown("Train a custom model using kohya finetune python code...")

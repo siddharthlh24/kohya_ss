@@ -50,7 +50,6 @@ executor = None
 
 # Setup huggingface
 huggingface = None
-use_shell = False
 train_state_value = time.time()
 
 
@@ -957,14 +956,10 @@ def ti_tab(
     headless=False,
     default_output_dir=None,
     config: KohyaSSGUIConfig = {},
-    use_shell_flag: bool = False,
 ):
     dummy_db_true = gr.Checkbox(value=True, visible=False)
     dummy_db_false = gr.Checkbox(value=False, visible=False)
     dummy_headless = gr.Checkbox(value=headless, visible=False)
-
-    global use_shell
-    use_shell = use_shell_flag
 
     current_embedding_dir = (
         default_output_dir

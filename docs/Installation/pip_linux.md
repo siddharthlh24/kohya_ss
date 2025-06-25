@@ -120,7 +120,6 @@ You can pass the following arguments to `gui.sh` or `kohya_gui.py`:
   --language LANGUAGE   Set custom language
   --use-ipex            Use IPEX environment
   --use-rocm            Use ROCm environment
-  --do_not_use_shell    Enforce not to use shell=True when running external commands
   --do_not_share        Do not share the gradio UI
   --requirements REQUIREMENTS
                         requirements file to use for validation

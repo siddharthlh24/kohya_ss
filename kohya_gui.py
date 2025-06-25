@@ -27,7 +27,7 @@ def read_file_content(file_path):
     return ""
 
 # Function to initialize the Gradio UI interface
-def initialize_ui_interface(config, headless, use_shell, release_info, readme_content):
+def initialize_ui_interface(config, headless, release_info, readme_content):
     # Load custom CSS if available
     css = read_file_content("./assets/style.css")
 
@@ -41,13 +41,13 @@ def initialize_ui_interface(config, headless, use_shell, release_info, readme_co
                 reg_data_dir_input,
                 output_dir_input,
                 logging_dir_input,
-            ) = dreambooth_tab(headless=headless, config=config, use_shell_flag=use_shell)
+            ) = dreambooth_tab(headless=headless, config=config)
         with gr.Tab("LoRA"):
-            lora_tab(headless=headless, config=config, use_shell_flag=use_shell)
+            lora_tab(headless=headless, config=config)
         with gr.Tab("Textual Inversion"):
-            ti_tab(headless=headless, config=config, use_shell_flag=use_shell)
+            ti_tab(headless=headless, config=config)
         with gr.Tab("Finetuning"):
-            finetune_tab(headless=headless, config=config, use_shell_flag=use_shell)
+            finetune_tab(headless=headless, config=config)
         with gr.Tab("Utilities"):
             # Utilities tab requires inputs from the Dreambooth tab
             utilities_tab(
@@ -91,13 +91,8 @@ def UI(**kwargs):
     if config.is_config_loaded():
         log.info(f"Loaded default GUI values from '{kwargs.get('config')}'...")
 
-    # Determine if shell should be used for running external commands
-    use_shell = not kwargs.get("do_not_use_shell", False) and config.get("settings.use_shell", True)
-    if use_shell:
-        log.info("Using shell=True when running external commands...")
-
     # Initialize the Gradio UI interface
-    ui_interface = initialize_ui_interface(config, kwargs.get("headless", False), use_shell, release_info, readme_content)
+    ui_interface = initialize_ui_interface(config, kwargs.get("headless", False), release_info, readme_content)
 
     # Construct launch parameters using dictionary comprehension
     launch_params = {
@@ -131,7 +126,6 @@ def initialize_arg_parser():
     parser.add_argument("--language", type=str, default=None, help="Set custom language")
     parser.add_argument("--use-ipex", action="store_true", help="Use IPEX environment")
     parser.add_argument("--use-rocm", action="store_true", help="Use ROCm environment")
-    parser.add_argument("--do_not_use_shell", action="store_true", help="Enforce not to use shell=True when running external commands")
     parser.add_argument("--do_not_share", action="store_true", help="Do not share the gradio UI")
     parser.add_argument("--requirements", type=str, default=None, help="requirements file to use for validation")
     parser.add_argument("--root_path", type=str, default=None, help="`root_path` for Gradio to enable reverse proxy support. e.g. /kohya_ss")
