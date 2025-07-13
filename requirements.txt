@@ -3,6 +3,7 @@ aiofiles==23.2.1
 altair==4.2.2
 dadaptation==3.2
 diffusers[torch]==0.32.2
+easygui==0.98.3
 einops==0.7.0
 fairscale==0.4.13
 ftfy==6.1.1

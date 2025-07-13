@@ -111,7 +111,7 @@ class SourceModel:
                         self.pretrained_model_name_or_path = gr.Dropdown(
                             label="Pretrained model name or path",
                             choices=default_models + model_checkpoints,
-                            value=self.config.get("model.pretrained_model_name_or_path", "runwayml/stable-diffusion-v1-5"),
+                            value=self.config.get("model.models_dir", "runwayml/stable-diffusion-v1-5"),
                             allow_custom_value=True,
                             visible=True,
                             min_width=100,
@@ -244,33 +244,33 @@ class SourceModel:
                     with gr.Column():
                         with gr.Row():
                             self.v2 = gr.Checkbox(
-                                label="v2", value=self.config.get("model.v2", False), visible=False, min_width=60,
+                                label="v2", value=False, visible=False, min_width=60,
                                 interactive=True,
                             )
                             self.v_parameterization = gr.Checkbox(
                                 label="v_param",
-                                value=self.config.get("model.v_parameterization", False),
+                                value=False,
                                 visible=False,
                                 min_width=130,
                                 interactive=True,
                             )
                             self.sdxl_checkbox = gr.Checkbox(
                                 label="SDXL",
-                                value=self.config.get("model.sdxl", False),
+                                value=False,
                                 visible=False,
                                 min_width=60,
                                 interactive=True,
                             )
                             self.sd3_checkbox = gr.Checkbox(
                                 label="SD3",
-                                value=self.config.get("model.sd3", False),
+                                value=False,
                                 visible=False,
                                 min_width=60,
                                 interactive=True,
                             )
                             self.flux1_checkbox = gr.Checkbox(
                                 label="Flux.1",
-                                value=self.config.get("model.flux1", False),
+                                value=False,
                                 visible=False,
                                 min_width=60,
                                 interactive=True,
