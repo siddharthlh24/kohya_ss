@@ -3,12 +3,15 @@ import gradio as gr
 import subprocess
 import time
 import webbrowser
+import shutil
 
 try:
-    os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
-    import tensorflow  # Attempt to import tensorflow to check if it is installed
-
-    visibility = True
+    # os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+    # import tensorflow  # Attempt to import tensorflow to check if it is installed
+    if shutil.which("tensorboard"):
+        visibility = True
+    else:
+        visibility = False
 except ImportError:
     visibility = False
 
