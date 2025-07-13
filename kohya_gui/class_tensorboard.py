@@ -3,12 +3,25 @@ import gradio as gr
 import subprocess
 import time
 import webbrowser
+import shutil
+import re
+
+def check_avx_support():
+    try:
+        with open('/proc/cpuinfo') as f:
+            for line in f:
+                if line.startswith('flags'):
+                    return 'avx' in line
+    except FileNotFoundError:
+        # /proc/cpuinfo is not available on all platforms.
+        # As a fallback, assume AVX is not supported.
+        return False
 
 try:
-    os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
-    import tensorflow  # Attempt to import tensorflow to check if it is installed
-
-    visibility = True
+    if shutil.which("tensorboard") and check_avx_support():
+        visibility = True
+    else:
+        visibility = False
 except ImportError:
     visibility = False
 
