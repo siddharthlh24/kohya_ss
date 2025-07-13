@@ -1,4 +1,5 @@
 import gradio as gr
+from easygui import msgbox, boolbox
 from .common_gui import get_folder_path, scriptdir, list_dirs
 from math import ceil
 import os
@@ -47,7 +48,7 @@ def paginate_go(page, max_page):
     try:
         page = float(page)
     except:
-        gr.Error(f"Invalid page num: {page}")
+        msgbox(f"Invalid page num: {page}")
         return
     return paginate(page, max_page, 0)
 
@@ -106,7 +107,7 @@ def update_image_tags(
 
 
 def import_tags_from_captions(
-    images_dir, caption_ext, quick_tags_text, ignore_load_tags_word_count, headless=False
+    images_dir, caption_ext, quick_tags_text, ignore_load_tags_word_count
 ):
     """
     Scans images directory for all available captions and loads all tags
@@ -118,23 +119,23 @@ def import_tags_from_captions(
 
     # Check for images_dir
     if not images_dir:
-        gr.Warning("Image folder is missing...")
+        msgbox("Image folder is missing...")
         return empty_return()
 
     if not os.path.exists(images_dir):
-        gr.Warning("Image folder does not exist...")
+        msgbox("Image folder does not exist...")
         return empty_return()
 
     if not caption_ext:
-        gr.Warning("Please provide an extension for the caption files.")
+        msgbox("Please provide an extension for the caption files.")
         return empty_return()
 
     if quick_tags_text:
-        overwrite_message = "Overwriting existing quick tags."
-        if not headless:
-            gr.Info(overwrite_message)
-        log.info(overwrite_message)
-        # Proceeding to overwrite by not returning early.
+        if not boolbox(
+            f"Are you sure you wish to overwrite the current quick tags?",
+            choices=("Yes", "No"),
+        ):
+            return empty_return()
 
     images_list = os.listdir(images_dir)
     image_files = [f for f in images_list if f.lower().endswith(IMAGE_EXTENSIONS)]
@@ -172,15 +173,15 @@ def load_images(images_dir, caption_ext, loaded_images_dir, page, max_page):
 
     # Check for images_dir
     if not images_dir:
-        gr.Warning("Image folder is missing...")
+        msgbox("Image folder is missing...")
         return empty_return()
 
     if not os.path.exists(images_dir):
-        gr.Warning("Image folder does not exist...")
+        msgbox("Image folder does not exist...")
         return empty_return()
 
     if not caption_ext:
-        gr.Warning("Please provide an extension for the caption files.")
+        msgbox("Please provide an extension for the caption files.")
         return empty_return()
 
     # Load Images
@@ -443,7 +444,7 @@ def gradio_manual_caption_gui_tab(headless=False, default_images_dir=None):
 
         # Import tags button
         import_tags_button.click(
-            lambda loaded_dir, cap_ext, q_text, ignore_wc: import_tags_from_captions(loaded_dir, cap_ext, q_text, ignore_wc, headless=headless),
+            import_tags_from_captions,
             inputs=[
                 loaded_images_dir,
                 caption_ext,

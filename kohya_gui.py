@@ -4,7 +4,6 @@ import argparse
 import subprocess
 import contextlib
 import gradio as gr
-import toml
 
 from kohya_gui.class_gui_config import KohyaSSGUIConfig
 from kohya_gui.dreambooth_gui import dreambooth_tab
@@ -78,12 +77,7 @@ def UI(**kwargs):
     log.info(f"headless: {kwargs.get('headless', False)}")
 
     # Load release and README information
-    try:
-        pyproject_data = toml.load("pyproject.toml")
-        release_info = "v" + pyproject_data["project"]["version"]
-    except Exception as e:
-        log.error(f"Error loading version from pyproject.toml: {e}")
-        release_info = "vUNKNOWN" # Fallback version
+    release_info = read_file_content("./.release")
     readme_content = read_file_content("./README.md")
 
     # Load configuration from the specified file
@@ -108,6 +102,7 @@ def UI(**kwargs):
         "share": False if kwargs.get("do_not_share", False) else kwargs.get("share", False),
         "root_path": kwargs.get("root_path", None),
         "debug": kwargs.get("debug", False),
+        "allowed_paths": config.allowed_paths,
     }
   
     # This line filters out any key-value pairs from `launch_params` where the value is `None`, ensuring only valid parameters are passed to the `launch` function.

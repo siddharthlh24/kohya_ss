@@ -142,7 +142,7 @@ class AdvancedTraining:
                 placeholder='(Optional) Use to provide additional parameters not handled by the GUI. Eg: --some_parameters "value"',
                 value=self.config.get("advanced.additional_parameters", ""),
             )
-        with gr.Accordion("Scheduled Huber Loss", open=self.config.get("settings.expand_all_accordions", False)):
+        with gr.Accordion("Scheduled Huber Loss", open=False):
             with gr.Row():
                 self.loss_type = gr.Dropdown(
                     label="Loss type",
@@ -328,7 +328,7 @@ class AdvancedTraining:
             )
             self.flip_aug = gr.Checkbox(
                 label="Flip augmentation",
-                value=self.config.get("advanced.flip_aug", False),
+                value=getattr(self.config, "advanced.flip_aug", False),
                 info="Enable horizontal flip augmentation",
             )
             self.masked_loss = gr.Checkbox(
@@ -599,9 +599,9 @@ class AdvancedTraining:
             )
             self.log_tracker_config = gr.Dropdown(
                 label="Log tracker config",
-                choices=[self.config.get("advanced.log_tracker_config_dir", "")]
+                choices=[self.config.get("log_tracker_config_dir", "")]
                 + list_log_tracker_config_files(self.current_log_tracker_config_dir),
-                value=self.config.get("advanced.log_tracker_config_dir", ""),
+                value=self.config.get("log_tracker_config_dir", ""),
                 info="Path to tracker config file to use for logging",
                 interactive=True,
                 allow_custom_value=True,
@@ -610,7 +610,7 @@ class AdvancedTraining:
                 self.log_tracker_config,
                 lambda: None,
                 lambda: {
-                    "choices": [self.config.get("advanced.log_tracker_config_dir", "")]
+                    "choices": [self.config.get("log_tracker_config_dir", "")]
                     + list_log_tracker_config_files(self.current_log_tracker_config_dir)
                 },
                 "open_folder_small",
@@ -625,7 +625,7 @@ class AdvancedTraining:
             )
             self.log_tracker_config.change(
                 fn=lambda path: gr.Dropdown(
-                    choices=[self.config.get("advanced.log_tracker_config_dir", "")]
+                    choices=[self.config.get("log_tracker_config_dir", "")]
                     + list_log_tracker_config_files(path)
                 ),
                 inputs=self.log_tracker_config,

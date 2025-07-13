@@ -206,7 +206,6 @@ def gradio_wd14_caption_gui_tab(
                     "SmilingWolf/wd-swinv2-tagger-v3",
                     "SmilingWolf/wd-vit-tagger-v3",
                     "SmilingWolf/wd-convnext-tagger-v3",
-                    "SmilingWolf/wd-eva02-large-tagger-v3",
                 ],
                 value=config.get(
                     "wd14_caption.repo_id", "SmilingWolf/wd-v1-4-convnextv2-tagger-v2"
