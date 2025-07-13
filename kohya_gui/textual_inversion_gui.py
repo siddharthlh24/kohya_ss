@@ -976,10 +976,10 @@ def ti_tab(
         gr.Markdown("Train a TI using kohya textual inversion python code...")
 
         # Setup Configuration Files Gradio
-        with gr.Accordion("Configuration", open=False):
+        with gr.Accordion("Configuration", open=config.get("settings.expand_all_accordions", False)):
             configuration = ConfigurationFile(headless=headless, config=config)
 
-        with gr.Accordion("Accelerate launch", open=False), gr.Column():
+        with gr.Accordion("Accelerate launch", open=config.get("settings.expand_all_accordions", False)), gr.Column():
             accelerate_launch = AccelerateLaunch(config=config)
 
         with gr.Column():
@@ -992,13 +992,13 @@ def ti_tab(
                 config=config,
             )
 
-        with gr.Accordion("Folders", open=False), gr.Group():
+        with gr.Accordion("Folders", open=config.get("settings.expand_all_accordions", False)), gr.Group():
             folders = Folders(headless=headless, config=config)
 
-        with gr.Accordion("Metadata", open=False), gr.Group():
+        with gr.Accordion("Metadata", open=config.get("settings.expand_all_accordions", False)), gr.Group():
             metadata = MetaData(config=config)
 
-        with gr.Accordion("Dataset Preparation", open=False):
+        with gr.Accordion("Dataset Preparation", open=config.get("settings.expand_all_accordions", False)):
             gr.Markdown(
                 "This section provide Dreambooth tools to help setup your dataset..."
             )
@@ -1013,8 +1013,8 @@ def ti_tab(
 
             gradio_dataset_balancing_tab(headless=headless)
 
-        with gr.Accordion("Parameters", open=False), gr.Column():
-            with gr.Accordion("Basic", open="True"):
+        with gr.Accordion("Parameters", open=config.get("settings.expand_all_accordions", False)), gr.Column():
+            with gr.Accordion("Basic", open=config.get("textual_inversion.expand_basic_accordion", True)):
                 with gr.Group(elem_id="basic_tab"):
                     with gr.Row():
 
@@ -1032,7 +1032,7 @@ def ti_tab(
                         weights = gr.Dropdown(
                             label="Resume TI training (Optional. Path to existing TI embedding file to keep training)",
                             choices=[""] + list_embedding_files(current_embedding_dir),
-                            value="",
+                            value=config.get("textual_inversion.basic.weights", ""),
                             interactive=True,
                             allow_custom_value=True,
                         )
@@ -1068,15 +1068,16 @@ def ti_tab(
                         token_string = gr.Textbox(
                             label="Token string",
                             placeholder="eg: cat",
+                            value=config.get("textual_inversion.basic.token_string", ""),
                         )
                         init_word = gr.Textbox(
                             label="Init word",
-                            value="*",
+                            value=config.get("textual_inversion.basic.init_word", "*"),
                         )
                         num_vectors_per_token = gr.Slider(
                             minimum=1,
                             maximum=75,
-                            value=1,
+                            value=config.get("textual_inversion.basic.num_vectors_per_token", 1),
                             step=1,
                             label="Vectors",
                         )
@@ -1091,7 +1092,7 @@ def ti_tab(
                                 "object template",
                                 "style template",
                             ],
-                            value="caption",
+                            value=config.get("textual_inversion.basic.template", "caption"),
                         )
                     basic_training = BasicTraining(
                         learning_rate_value=1e-5,
@@ -1108,7 +1109,7 @@ def ti_tab(
                         config=config,
                     )
 
-            with gr.Accordion("Advanced", open=False, elem_id="advanced_tab"):
+            with gr.Accordion("Advanced", open=config.get("settings.expand_all_accordions", False), elem_id="advanced_tab"):
                 advanced_training = AdvancedTraining(headless=headless, config=config)
                 advanced_training.color_aug.change(
                     color_aug_changed,
@@ -1116,11 +1117,11 @@ def ti_tab(
                     outputs=[basic_training.cache_latents],
                 )
 
-            with gr.Accordion("Samples", open=False, elem_id="samples_tab"):
+            with gr.Accordion("Samples", open=config.get("settings.expand_all_accordions", False), elem_id="samples_tab"):
                 sample = SampleImages(config=config)
 
             global huggingface
-            with gr.Accordion("HuggingFace", open=False):
+            with gr.Accordion("HuggingFace", open=config.get("settings.expand_all_accordions", False)):
                 huggingface = HuggingFace(config=config)
 
         global executor

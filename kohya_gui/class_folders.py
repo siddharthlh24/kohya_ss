@@ -26,13 +26,13 @@ class Folders:
 
         # Set default directories if not provided
         self.current_output_dir = self.config.get(
-            "output_dir", os.path.join(scriptdir, "outputs")
+            "folders.output_dir", os.path.join(scriptdir, "outputs")
         )
         self.current_logging_dir = self.config.get(
-            "logging_dir", os.path.join(scriptdir, "logs")
+            "folders.logging_dir", os.path.join(scriptdir, "logs")
         )
         self.current_reg_data_dir = self.config.get(
-            "reg_data_dir", os.path.join(scriptdir, "reg")
+            "folders.reg_data_dir", os.path.join(scriptdir, "reg")
         )
 
         # Create directories if they don't exist

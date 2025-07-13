@@ -2,7 +2,6 @@ try:
     from tkinter import filedialog, Tk
 except ImportError:
     pass
-from easygui import msgbox, ynbox
 from typing import Optional
 from .custom_logging import setup_logging
 from .sd_modeltype import SDModelType
@@ -123,24 +122,32 @@ def check_if_model_exist(
     """
     if headless:
         log.info(
-            "Headless mode, skipping verification if model already exist... if model already exist it will be overwritten..."
+            "Headless mode: If model already exists, it will be overwritten by default."
         )
-        return False
+        # No change needed for headless, it already implies proceeding.
+
+    model_path_to_check = ""
+    model_type_for_message = ""
 
     if save_model_as in ["diffusers", "diffusers_safetendors"]:
         ckpt_folder = os.path.join(output_dir, output_name)
         if os.path.isdir(ckpt_folder):
-            msg = f"A diffuser model with the same name {ckpt_folder} already exists. Do you want to overwrite it?"
-            if not ynbox(msg, "Overwrite Existing Model?"):
-                log.info("Aborting training due to existing model with same name...")
-                return True
+            model_path_to_check = ckpt_folder
+            model_type_for_message = "diffuser model"
+
     elif save_model_as in ["ckpt", "safetensors"]:
         ckpt_file = os.path.join(output_dir, output_name + "." + save_model_as)
         if os.path.isfile(ckpt_file):
-            msg = f"A model with the same file name {ckpt_file} already exists. Do you want to overwrite it?"
-            if not ynbox(msg, "Overwrite Existing Model?"):
-                log.info("Aborting training due to existing model with same name...")
-                return True
+            model_path_to_check = ckpt_file
+            model_type_for_message = "model file"
+
+    if model_path_to_check:
+        message = f"Existing {model_type_for_message} found: {model_path_to_check}. It will be overwritten."
+        log.warning(message)
+        if not headless:
+            gr.Warning(message)
+        # Returning False means "don't abort", so the overwrite will proceed.
+        return False
     else:
         log.info(
             'Can\'t verify if existing model exist when save model is set as "same as source model", continuing to train model...'
@@ -165,7 +172,7 @@ def output_message(msg: str = "", title: str = "", headless: bool = False) -> No
     if headless:
         log.info(msg)
     else:
-        msgbox(msg=msg, title=title)
+        gr.Info(msg)
 
 
 def create_refresh_button(refresh_component, refresh_method, refreshed_args, elem_id):
@@ -867,7 +874,7 @@ def find_replace(
     # Validate the presence of caption files and the search text
     if not search_text or not has_ext_files(folder_path, caption_file_ext):
         # Display a message box indicating no files were found
-        msgbox(
+        gr.Info(
             f"No files with extension {caption_file_ext} were found in {folder_path}..."
         )
         log.warning(
@@ -931,7 +938,7 @@ def color_aug_changed(color_aug):
     """
     # If color augmentation is enabled, disable cache latent and return a new checkbox
     if color_aug:
-        msgbox(
+        gr.Info(
             'Disabling "Cache latent" because "Color augmentation" has been selected...'
         )
         return gr.Checkbox(value=False, interactive=False)
