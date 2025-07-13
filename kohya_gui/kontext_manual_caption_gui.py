@@ -57,6 +57,20 @@ def paginate_go(page, max_page):
         return gr.update()
 
 
+def derive_target_folder(control_folder):
+    if not control_folder or not os.path.exists(control_folder):
+        return ""
+
+    parent_dir = os.path.dirname(control_folder)
+
+    for item in os.listdir(parent_dir):
+        if os.path.isdir(os.path.join(parent_dir, item)):
+            if "target" in item.lower():
+                return os.path.join(parent_dir, item)
+
+    return os.path.join(parent_dir, "target")
+
+
 def paginate(page, max_page, page_change):
     # REFACTOR: Ensure page is treated as an integer
     return int(max(min(int(page) + page_change, max_page), 1))
@@ -117,18 +131,27 @@ def update_image_tags(
 
 
 def import_tags_from_captions(
-    images_dir, caption_ext, quick_tags_text, ignore_load_tags_word_count
+    images_dir,
+    caption_ext,
+    quick_tags_text,
+    ignore_load_tags_word_count,
+    ask_overwrite=True,
 ):
     if not images_dir or not os.path.exists(images_dir):
-        gr.Warning("Image folder is not set or does not exist. Please load images first.")
+        gr.Warning(
+            "Image folder is not set or does not exist. Please load images first."
+        )
         return gr.update()
 
     if not caption_ext:
         gr.Warning("Please provide an extension for the caption files.")
         return gr.update()
 
-    if quick_tags_text:
-        if not boolbox("Are you sure you wish to overwrite the current quick tags?", choices=("Yes", "No")):
+    if quick_tags_text and ask_overwrite:
+        if not boolbox(
+            "Are you sure you wish to overwrite the current quick tags?",
+            choices=("Yes", "No"),
+        ):
             return gr.update()
 
     # REFACTOR: Directly iterate over files from os.scandir for slight performance gain
@@ -151,15 +174,23 @@ def import_tags_from_captions(
                                 tags.append(tag)
                                 tags_set.add(tag_key)
 
-    gr.Info(f"Imported {len(tags)} unique tags.")
-    return ", ".join(sorted(tags, key=str.lower)) # REFACTOR: Sort alphabetically for consistency
+    # Ensure tags are alphabetically sorted (case-insensitive)
+    tags_sorted = sorted(tags, key=lambda t: t.lower())
+    gr.Info(f"Imported {len(tags_sorted)} unique tags.")
+    return ", ".join(tags_sorted)
 
 
-def load_images(target_images_dir, control_images_dir, caption_ext):
+def load_images(
+    target_images_dir,
+    control_images_dir,
+    caption_ext,
+    quick_tags_text,
+    ignore_load_tags_word_count,
+):
     def error_message(msg):
         gr.Warning(msg)
         # REFACTOR: Return updates for all outputs to clear state on error
-        return [None, None, None, 1, 1, gr.Markdown(f"⚠️ {msg}", visible=True)]
+        return [None, None, None, 1, 1, gr.Markdown(f"⚠️ {msg}", visible=True), gr.update()]
 
     if not target_images_dir or not os.path.exists(target_images_dir):
         return error_message("Target image folder is missing or does not exist.")
@@ -168,13 +199,23 @@ def load_images(target_images_dir, control_images_dir, caption_ext):
     if not caption_ext:
         return error_message("Please provide an extension for the caption files.")
 
-    target_image_files = {f for f in os.listdir(target_images_dir) if f.lower().endswith(IMAGE_EXTENSIONS)}
-    control_image_files = {f for f in os.listdir(control_images_dir) if f.lower().endswith(IMAGE_EXTENSIONS)}
+    target_image_files = {
+        f
+        for f in os.listdir(target_images_dir)
+        if f.lower().endswith(IMAGE_EXTENSIONS)
+    }
+    control_image_files = {
+        f
+        for f in os.listdir(control_images_dir)
+        if f.lower().endswith(IMAGE_EXTENSIONS)
+    }
     # REFACTOR: Sort files here once and store them
     shared_files = sorted(list(target_image_files.intersection(control_image_files)))
 
     if not shared_files:
-        return error_message("No shared images found between the target and control directories.")
+        return error_message(
+            "No shared images found between the target and control directories."
+        )
 
     total_images = len(shared_files)
     max_pages = ceil(total_images / IMAGES_TO_SHOW)
@@ -182,8 +223,25 @@ def load_images(target_images_dir, control_images_dir, caption_ext):
     info = f"✅ Loaded {total_images} shared images. {max_pages} pages total."
     gr.Info(info)
 
+    # Import tags
+    new_quick_tags = import_tags_from_captions(
+        target_images_dir,
+        caption_ext,
+        quick_tags_text,
+        ignore_load_tags_word_count,
+        ask_overwrite=False,
+    )
+
     # REFACTOR: Return the computed file list to be stored in gr.State
-    return [shared_files, target_images_dir, control_images_dir, 1, max_pages, gr.Markdown(info, visible=True)]
+    return [
+        shared_files,
+        target_images_dir,
+        control_images_dir,
+        1,
+        max_pages,
+        gr.Markdown(info, visible=True),
+        new_quick_tags,
+    ]
 
 
 def update_images(
@@ -294,7 +352,17 @@ def gradio_kontext_manual_caption_gui_tab(headless=False, default_images_dir=Non
             load_images_button = gr.Button("Load Images", variant="primary")
 
             target_images_dir.change(update_dir_list, inputs=target_images_dir, outputs=target_images_dir, show_progress=False)
-            control_images_dir.change(update_dir_list, inputs=control_images_dir, outputs=control_images_dir, show_progress=False)
+            control_images_dir.change(
+                lambda path, current_target: (
+                    update_dir_list(path),
+                    derive_target_folder(path)
+                    if not current_target
+                    else current_target,
+                ),
+                inputs=[control_images_dir, target_images_dir],
+                outputs=[control_images_dir, target_images_dir],
+                show_progress=False,
+            )
 
         with gr.Group():
             quick_tags_text = gr.Textbox(label="Quick Tags", placeholder="Comma separated list of tags", interactive=True)
@@ -330,10 +398,37 @@ def gradio_kontext_manual_caption_gui_tab(headless=False, default_images_dir=Non
         pagination_row2, page_count2 = render_pagination_with_logic(page, max_page)
 
         quick_tags_text.change(update_quick_tags, inputs=[quick_tags_text] + image_caption_texts, outputs=image_tag_checks)
-        import_tags_button.click(import_tags_from_captions, inputs=[loaded_images_dir, caption_ext, quick_tags_text, ignore_load_tags_word_count], outputs=quick_tags_text)
+        import_tags_button.click(
+            import_tags_from_captions,
+            inputs=[
+                loaded_images_dir,
+                caption_ext,
+                quick_tags_text,
+                ignore_load_tags_word_count,
+            ],
+            outputs=quick_tags_text,
+        )
 
-        load_images_outputs = [image_files_state, loaded_images_dir, loaded_control_images_dir, page, max_page, info_box]
-        load_images_button.click(load_images, inputs=[target_images_dir, control_images_dir, caption_ext], outputs=load_images_outputs)
+        load_images_outputs = [
+            image_files_state,
+            loaded_images_dir,
+            loaded_control_images_dir,
+            page,
+            max_page,
+            info_box,
+            quick_tags_text,
+        ]
+        load_images_button.click(
+            load_images,
+            inputs=[
+                target_images_dir,
+                control_images_dir,
+                caption_ext,
+                quick_tags_text,
+                ignore_load_tags_word_count,
+            ],
+            outputs=load_images_outputs,
+        )
 
         # REFACTOR: A single trigger to update the images view
         update_trigger_inputs = [image_files_state, loaded_images_dir, loaded_control_images_dir, caption_ext, quick_tags_text, page]
