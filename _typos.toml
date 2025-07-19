@@ -9,6 +9,7 @@ parms="parms"
 nin="nin"
 extention="extention" # Intentionally left
 nd="nd"
+pn="pn"
 shs="shs"
 sts="sts"
 scs="scs"
@@ -27,6 +28,7 @@ rik="rik"
 koo="koo"
 yos="yos"
 wn="wn"
+parm = "parm"
 
 
 [files]

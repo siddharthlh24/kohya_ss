@@ -10,6 +10,19 @@ env_var_exists() {
   fi
 }
 
+# Define the directory path for WSL2
+lib_path="/usr/lib/wsl/lib/"
+
+# Check if the directory exists
+if [ -d "$lib_path" ]; then
+    # Check if LD_LIBRARY_PATH is already set
+    if [ -z "${LD_LIBRARY_PATH}" ]; then
+        # LD_LIBRARY_PATH is not set, set it to the lib_path
+        export LD_LIBRARY_PATH="$lib_path"
+        # echo "LD_LIBRARY_PATH set to: $LD_LIBRARY_PATH"
+    fi
+fi
+
 # Need RUNPOD to have a default value before first access
 RUNPOD=false
 if env_var_exists RUNPOD_POD_ID || env_var_exists RUNPOD_API_KEY; then
@@ -29,10 +42,17 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "$0")" && pwd)
 # Step into GUI local directory
 cd "$SCRIPT_DIR" || exit 1
 
-if [ -d "$SCRIPT_DIR/venv" ]; then
+# Check if conda environment is already activated
+if [ -n "$CONDA_PREFIX" ]; then
+    echo "Using existing conda environment: $CONDA_DEFAULT_ENV"
+    echo "Conda environment path: $CONDA_PREFIX"
+elif [ -d "$SCRIPT_DIR/venv" ]; then
+    echo "Activating venv..."
     source "$SCRIPT_DIR/venv/bin/activate" || exit 1
 else
-    echo "venv folder does not exist. Not activating..."
+    echo "No conda environment active and venv folder does not exist."
+    echo "Please run setup.sh first or activate a conda environment."
+    exit 1
 fi
 
 # Check if LD_LIBRARY_PATH environment variable exists
@@ -61,6 +81,10 @@ else
     if [ "$RUNPOD" = false ]; then
         if [[ "$@" == *"--use-ipex"* ]]; then
             REQUIREMENTS_FILE="$SCRIPT_DIR/requirements_linux_ipex.txt"
+        elif [ -x "$(command -v nvidia-smi)" ]; then
+            REQUIREMENTS_FILE="$SCRIPT_DIR/requirements_linux.txt"
+        elif [[ "$@" == *"--use-rocm"* ]] || [ -x "$(command -v rocminfo)" ] || [ -f "/opt/rocm/bin/rocminfo" ]; then
+            REQUIREMENTS_FILE="$SCRIPT_DIR/requirements_linux_rocm.txt"
         else
             REQUIREMENTS_FILE="$SCRIPT_DIR/requirements_linux.txt"
         fi
@@ -72,20 +96,42 @@ fi
 #Set OneAPI if it's not set by the user
 if [[ "$@" == *"--use-ipex"* ]]
 then
-    echo "Setting OneAPI environment"
-    if [ ! -x "$(command -v sycl-ls)" ]
-    then
-        if [[ -z "$ONEAPI_ROOT" ]]
-        then
-            ONEAPI_ROOT=/opt/intel/oneapi
+    if [[ -z "${DISABLE_VENV_LIBS}" ]]; then
+        if [ -n "$CONDA_PREFIX" ]; then
+            export LD_LIBRARY_PATH=$(realpath "$CONDA_PREFIX")/lib/:$LD_LIBRARY_PATH
+        elif [ -d "$SCRIPT_DIR/venv" ]; then
+            export LD_LIBRARY_PATH=$(realpath "$SCRIPT_DIR/venv")/lib/:$LD_LIBRARY_PATH
         fi
-        source $ONEAPI_ROOT/setvars.sh
     fi
-    export NEOReadDebugKeys=1
-    export ClDeviceGlobalMemSizeAvailablePercent=100
+    if [[ -z "${NEOReadDebugKeys}" ]]; then
+        export NEOReadDebugKeys=1
+    fi
+    if [[ -z "${ClDeviceGlobalMemSizeAvailablePercent}" ]]; then
+        export ClDeviceGlobalMemSizeAvailablePercent=100
+    fi
+    if [[ -z "${SYCL_CACHE_PERSISTENT}" ]]; then
+        export SYCL_CACHE_PERSISTENT=1
+    fi
+    if [[ -z "${PYTORCH_ENABLE_XPU_FALLBACK}" ]]; then
+        export PYTORCH_ENABLE_XPU_FALLBACK=1
+    fi
+    if [[ ! -z "${IPEXRUN}" ]] && [ ${IPEXRUN}="True" ] && [ -x "$(command -v ipexrun)" ]
+    then
+        if [[ -z "$STARTUP_CMD" ]]
+        then
+            STARTUP_CMD=ipexrun
+        fi
+        if [[ -z "$STARTUP_CMD_ARGS" ]]
+        then
+            STARTUP_CMD_ARGS="--multi-task-manager taskset --memory-allocator tcmalloc"
+        fi
+    fi
 fi
 
-# Validate the requirements and run the script if successful
-if python "$SCRIPT_DIR/setup/validate_requirements.py" -r "$REQUIREMENTS_FILE"; then
-    python "$SCRIPT_DIR/kohya_gui.py" "$@"
+#Set STARTUP_CMD as normal python if not specified
+if [[ -z "$STARTUP_CMD" ]]
+then
+    STARTUP_CMD=python
 fi
+
+"${STARTUP_CMD}" $STARTUP_CMD_ARGS "$SCRIPT_DIR/kohya_gui.py" "--requirements=""$REQUIREMENTS_FILE" "$@"
