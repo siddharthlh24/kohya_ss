@@ -1,0 +1,2 @@
+python fancy_body_detector.py
+PAUSE
